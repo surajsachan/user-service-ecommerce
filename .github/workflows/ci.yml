@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Java CI with Maven
+name: Build and Deploy to AWS EKS
 
 on:
   push:
@@ -29,3 +29,34 @@ jobs:
         cache: maven
     - name: Build with Maven (Skip Tests)
       run: mvn -B clean package -DskipTests --file pom.xml
+
+      # Login to AWS
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+      # Login to AWS ECR
+    - name: Login to AWS ECR
+      run: |
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPO }}
+
+      # Build Docker Image
+    - name: Build Docker Image
+      run: |
+        docker build -t user-service:latest .
+        docker tag user-service:latest ${{ secrets.AWS_ECR_REPO }}/user-service:latest
+
+      # Push Docker Image to ECR
+    - name: Push Image to ECR
+      run: |
+        docker push ${{ secrets.AWS_ECR_REPO }}/user-service:latest
+
+      # Update Kubernetes Deployment on AWS EKS
+    - name: Update Kubernetes Deployment
+      run: |
+        aws eks --region us-east-1 update-kubeconfig --name my-cluster
+        kubectl set image deployment/user-service user-service=${{ secrets.AWS_ECR_REPO }}/user-service:latest
+        kubectl rollout status deployment/user-service
