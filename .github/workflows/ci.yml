@@ -58,6 +58,6 @@ jobs:
     - name: Deploy to EKS
       run: |
         aws eks --region us-east-1 update-kubeconfig --name my-cluster
-        kubectl apply -f deployment.yaml  # Ensure deployment exists
+        kubectl apply -f deployment/deployment.yaml  # Ensure deployment exists
         kubectl set image deployment/user-service user-service=${{ secrets.AWS_ECR_REPO }}:latest
         kubectl rollout status deployment/user-service
