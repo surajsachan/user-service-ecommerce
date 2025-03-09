@@ -55,8 +55,9 @@ jobs:
         docker push ${{ secrets.AWS_ECR_REPO }}:latest
 
       # Update Kubernetes Deployment on AWS EKS
-    - name: Update Kubernetes Deployment
+    - name: Deploy to EKS
       run: |
         aws eks --region us-east-1 update-kubeconfig --name my-cluster
-        kubectl set image deployment/user-service user-service=${{ secrets.AWS_ECR_REPO }}:latestupdated 
+        kubectl apply -f deployment.yaml  # Ensure deployment exists
+        kubectl set image deployment/user-service user-service=${{ secrets.AWS_ECR_REPO }}:user-service-${{ github.sha }}
         kubectl rollout status deployment/user-service
