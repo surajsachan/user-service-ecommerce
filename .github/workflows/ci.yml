@@ -47,12 +47,12 @@ jobs:
     - name: Build Docker Image
       run: |
         docker build -t user-service:latest .
-        docker tag user-service:latest ${{ secrets.AWS_ECR_REPO }}:latest
+        docker tag user-service:latest ${{ secrets.AWS_ECR_REPO }}/user-service:latest
 
       # Push Docker Image to ECR
     - name: Push Image to ECR
       run: |
-        docker push ${{ secrets.AWS_ECR_REPO }}:latest
+        docker push ${{ secrets.AWS_ECR_REPO }}/user-service:latest
 
       # Update Kubernetes Deployment on AWS EKS
     - name: Deploy to EKS
