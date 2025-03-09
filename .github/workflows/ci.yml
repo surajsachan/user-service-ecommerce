@@ -47,16 +47,16 @@ jobs:
     - name: Build Docker Image
       run: |
         docker build -t user-service:latest .
-        docker tag user-service:latest ${{ secrets.AWS_ECR_REPO }}/user-service:latest
+        docker tag user-service:latest ${{ secrets.AWS_ECR_REPO }}:latest
 
       # Push Docker Image to ECR
     - name: Push Image to ECR
       run: |
-        docker push ${{ secrets.AWS_ECR_REPO }}/user-service:latest
+        docker push ${{ secrets.AWS_ECR_REPO }}:latest
 
       # Update Kubernetes Deployment on AWS EKS
     - name: Update Kubernetes Deployment
       run: |
         aws eks --region us-east-1 update-kubeconfig --name my-cluster
-        kubectl set image deployment/user-service user-service=${{ secrets.AWS_ECR_REPO }}/user-service:latest
+        kubectl set image deployment/user-service user-service=${{ secrets.AWS_ECR_REPO }}:latestupdated 
         kubectl rollout status deployment/user-service
