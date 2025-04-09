@@ -30,11 +30,15 @@ spec:
                 secretKeyRef:
                   name: postgres-secrets
                   key: POSTGRES_PASSWORD
+
+---
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: user-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # Use NLB. Or use "external" or ALB annotations if going with Ingress.
 spec:
   selector:
     app: user-service
@@ -42,4 +46,4 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
-  type: LoadBalancer  # Change to ClusterIP if needed
+  type: LoadBalancer
