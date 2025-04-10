@@ -59,5 +59,7 @@ jobs:
       run: |
         aws eks --region us-east-1 update-kubeconfig --name my-cluster
         kubectl apply -f deployment/deployment.yaml  # Ensure deployment exists
+        kubectl apply -f deployment/postgres-secrets.yaml
+        kubectl apply -f deployment/iam-policy.json
         kubectl set image deployment/user-service user-service=${{ secrets.AWS_ECR_REPO }}:latest
         kubectl rollout status deployment/user-service
